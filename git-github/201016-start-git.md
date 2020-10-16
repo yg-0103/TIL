@@ -1,5 +1,3 @@
-doc:documentation
-
 # git clone !
 
 1.github 사이트에서 new repository 생성
