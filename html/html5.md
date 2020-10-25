@@ -10,6 +10,7 @@
 - 명시적으로 컨텐츠의 구분을 해주는 태그들이 등장(header, section, aside,footer 등...)
 - whatwg의 표준안을 w3c에서 수용하여 html5가 탄생했다. / whatwg = vender들이 만든 그룹, web application 1.0 과 web forms 2.0을 만들었다.
 - web api가 등장했다. web api(javascript 기술을 조금 더 쉽게 사용할 수 있도록 웹 자체에서 다양한 api를 지원한다)
+- HTML5는 HTML4.01이나 XHTML1.0의 문법을 모두 허용한다.
 
 ## HTML 구조잡기
 - 구조적인 순서 생각하기 3단 HEADER, MAIN, FOOTER / 4단 HEADER, NAVIGATION, MAIN, FOOTER
