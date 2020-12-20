@@ -11,7 +11,5 @@ function sortBy(key) {
 }
 
 console.log(sortBy('id'));
-
 console.log(sortBy('content'));
-
 console.log(sortBy('completed'));
