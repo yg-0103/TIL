@@ -8,8 +8,15 @@
 */
 function getCount8() {
   let count = 0;
+  // Array.from({ length: 10000 }, (_, i) => {
+  //   [...(i + '')].forEach((v) => (v === '8' ? ++count : count));
+  // });
+  // return count;
   Array.from({ length: 10000 }, (_, i) => {
-    [...(i + '')].forEach((v) => (v === '8' ? ++count : count));
+    while (i >= 1) {
+      if (Math.floor(i % 10) === 8) count++;
+      i = Math.floor(i / 10);
+    }
   });
   return count;
 }
