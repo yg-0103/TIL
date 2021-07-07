@@ -2,7 +2,7 @@
 
 ### Typescript infer keyword
 
-조건부 타입에서 infer 키워드는 extends 절에서 사용 가능하고 타입변수를 참조하기 위해서 사용된다.
+조건부 타입에서 infer 키워드는 extends 절에서 사용 가능하고 타입변수를 참조하기 위해서 사용된다
 
 ex)
 
