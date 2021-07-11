@@ -4,7 +4,7 @@
 
 
 
-client 단 에서 입력받은 image file이 크기가 다다르고 용량이 굉장히 큰 파일이 올 수도 있으므로 file 크기를 resizing 해준다.
+client 단 에서 입력받은 image file이 크기가 다다르고 용량이 굉장히 큰 파일이 올 수도 있으므로 file 크기를 resizing 해준다
 
 ```tsx
 const resizeFile = (file: File) => {
