@@ -108,10 +108,10 @@ function App () {
     <div>
       <Profile />
       <button onClick={() => {
-        // set the cookie as expired
+        
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
 
-        // tell all SWRs with this key to revalidate
+        
         mutate('/api/user', newData)
       }}>
         Logout
@@ -135,7 +135,8 @@ function ProductList() {
   return (
   	<>
     	{data.map(product => <ProductItem product={product}/>)}
-			<button onClick={() => mutate}>click</button>
+													// 로컬 데이터를 즉시 업데이트 두번째 인수로 refetch 여부
+			<button onClick={() => mutate({...data, product: newProducts}, false)}>click</button>
     </>
   )
 }
