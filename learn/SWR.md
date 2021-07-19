@@ -77,7 +77,7 @@ const { data, eror, isValidating, mutate} = useSWR(key, fetcher, option)
 
 ### 2. Global Configuration
 
-Child component 들에게 동일한 options를 부여할 수 있게 한다.
+Child component 들에게 동일한 options를 부여할 수 있게 한다
 
 ```typescript
 function App () {
