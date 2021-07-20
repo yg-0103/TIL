@@ -22,4 +22,4 @@ export default function ApplyLink() {
 
 Link 컴포넌트에 passHref 라는 prop을 주면 정상동작 하긴 했지만 굳이 route가 아닌 다른 링크로 이동하는 일에 Link 컴포넌트를 쓰는 것 보단 a 태그에 직접 href를 주는 게 좋을 것 같다고 해서 겉에 Link 태그를 걷어내는 것으로 처리했다.
 
-passHref: boolean = 기본 값은 false로 href prop을 자식에게 강제로 전달하게 한다.
+passHref: boolean = 기본 값은 false로 href prop을 자식에게 강제로 전달하게 한다
