@@ -120,3 +120,95 @@ function App () {
 }
 ```
 
+
+
+
+
+## Recoil 비동기 예제
+
+```react
+const postsState = selector({
+  key: 'postsState',
+  get: async ({ get }) => {
+    const { data: posts } = await getPosts();
+		return posts;
+  }
+})
+
+function PostList() {
+  const posts = useRecoilValue(postsState)
+  
+  retrun (
+    <ul>
+   	 {posts.map(post => <PostItem key={post.id} post={post}/>)}
+    </ul>
+  )
+}
+```
+
+Recoil은 기본적으로 React.Suspense와 함께 동작하도록 디자인되어 있다. 
+
+```react
+function App() {
+  return (
+   <React.Suspense fallback={<div>loading ...</div>}>
+    	<PostList/>
+    </React.Suspense>
+  )
+}
+```
+
+
+
+### 에러 처리
+
+요청에 에러가 있다면 ErrorBoundary로 잡을 수 있다.
+
+```react
+const postsState = selector({
+  key: 'postsState',
+  get: async ({ get }) => {
+    try {
+      const { data: posts } = await getPosts();
+			return posts;
+    } catch(e) {
+      console.error(e)
+      throw new Error()
+    }
+  }
+})
+
+function App() {
+   return (
+    <ErrorBoundary>
+   		<React.Suspense fallback={<div>loading ...</div>}>
+    		<PostList/>
+    	</React.Suspense>
+    </ErrorBoundary>
+  )
+}
+
+```
+
+
+
+### 매개변수가 필요한 경우
+
+매개변수를 기반으로 쿼리를 하고싶을 때는 selectorFamily helper를 사용할 수 있다.
+
+```react
+const postState = selectorFamily({
+  key: 'postState',
+  get: (postId) => async () => {
+    const post = await getPost(postId)
+    return post
+  }
+})
+
+function Post ({ postId }) {
+  const post = useRecoilValue(postState(postId))
+  
+  return <div>{post}</div>
+}
+```
+
