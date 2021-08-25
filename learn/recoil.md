@@ -212,3 +212,98 @@ function Post ({ postId }) {
 }
 ```
 
+
+
+## Recoil API
+
+
+
+### atom(options)
+
+- key: atom을 식별하는데 사용되는 고유한 문자열
+- default:  atom의 초깃값 또는 Promise 또는 동일한 타입의 값을 나타내는 다른 atom이나 selector
+
+
+
+```react
+const counter = atom({
+  key: 'counter',
+  default: 0,
+})
+```
+
+
+
+### selector(options)
+
+selector는 get 함수만 제공되면 읽기만 가능하지만 set 함수도 제공되면 읽고 변경할 수 있다.
+
+- key: 고유한 문자열
+- get:  파생된 값을 평가하는 함수.
+  - get: 첫 번째 매개변수 객체에 포함된 속성으로 다른 atom이나 selector로 부터 값을 가져온다. 이 함수에 전달된 모든 atom과 selector는 의존성 목록에 추가된다.
+- set?:  이 속성이 설정되면 selector는 쓰기 가능한 상태를 반환한다.
+  - get: 다른 atom 이나 selector로부터 값을 가져온다. 이 함수에 주어진 atom이나 selector는 구독하지 않는다.
+  - set: 다른 atom 상태의 값을 설정할 때 사용되는 함수 첫 번째 매개변수는 recoil 상태, 두번째 매개변수는 새로운 값이다
+
+```react
+const plusFiveCounter = selector({
+  key: 'plusFiveCounter',
+  get: ({ get }) => get(counter) + 5,
+  set: ({ set }, newValue) => {
+  	set(counter, newValue instanceof DefaultValue ? newValue : newValue * 2)
+	}
+})
+
+
+function Counter() {
+  const [count, setCount] = useRecoilState(plusFiveCounter)
+  console.log(count) // 시작은 5 클릭 한번 할 때마다 15 35 ~~
+  return <div onClick={() => setCount(count)}>{count}</div>
+}
+```
+
+위와 같이 하게 되면 처음 count 는 0 에 5를 더한 5가 되고 클릭을 한번 할 때마다 newValue에 처음엔 5가 들어가 counter가 10으로 셋팅되고 두번 째 count는 15가 되고 클릭을 하게 되면 counter가 30이되고 count는 35가 된다
+
+
+
+### useRecoilValueLoadable
+
+Loadable 객체는 상태에 따라 사용가능한 값을 가지고 있거나 에러 상태이거나 비동기 진행 중일 수 있다.
+
+- state: atom 혹은 selector의 최신 상태, 값은 hasValue, hasError, loading 중 하나다.
+- contents:  hasValue 상태라면 실제 값, hasError 면 Error 객체, loading 이면 toPromise( )를 사용해여 Promise를 얻을 수 있다.
+
+
+
+Loadable은 최신 상태에 접근하기 위한 메서드를 가지고 있다.
+
+- getValue(): 현재 가지고 있는 값을 리턴 합니다. 아직 비동기 처리 중이라면 실행을 연기하거나 보류중인 상태를 전파하기 위해 리렌더링 합니다.
+- toPromise(): selector가 resolve되면 resolve 될 Promise를 리턴합니다. 동기거나 이미 resolve 살태면 즉시 resolve되는 Promise를 리턴
+- valueMaybe() : 가능하면 값을 리턴하며 아니면 undefined를 리턴
+- valueOrThrow() : 가능하면 값을 리턴하며 아니면 Error를 던집니다.
+- map(): Loadable의 값을 변형하기 위한 콜백을 받으며 새로운 Loadable을 변형된 상태와 함께 리턴한다.
+
+
+
+```react
+const asyncCounter = selector({
+  key: 'asyncCounter',
+  get: () => Promise.resolve(1)
+})
+
+function Counter() {
+  const asyncCounter = useRecoilValueLoadable(asyncCounter)
+  
+  switch (asyncCounter.state) {
+    case 'hasValue': 
+      return <div>{asyncCounter.contents}</div>
+    case 'loading': 
+    	return <div>loading...</div>
+    case 'hasError':
+    	throw asyncCounter.contents;
+  }
+}
+```
+
+
+
