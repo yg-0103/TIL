@@ -307,3 +307,192 @@ function Counter() {
 
 
 
+### useSetRecoilState(state)
+
+쓰기 가능한 Recoil 상태 값을 업데이트하기 위한 setter함수를 리턴한다.
+
+상태를 구독하지 않고 업데이트만 하려고 할때 사용한다. 컴포넌트를 구독하지 않고도 값을 설정할 수 있게 해준다.
+
+```react
+const counter = atom({
+	key: 'counter',
+  default: 0
+})
+
+function Button () {
+  const setCounter = useSetRecoilState(counter)
+  
+  return <button onClick={() => setCounter((prev) => prev + 1)}> + </button>
+}
+```
+
+
+
+### atomFamily(options)
+
+- key: 유니크한 값
+
+- default:  초기 값, 직접 값을 입력하거나 기본값을 나타내는 RecoilValue, Promise, 또는 기본값을 가져오는 함수다. 콜백 함수는 호출될 때 사용되는 매개변수의 복사값을 전달 받는다.
+
+
+
+Atom Family는 atom의 모음을 이미한다. atomFilay를 호춯하면 전달한 매개변수에 따라 RecoilState를 제공하는 함수를 반환한다.
+
+atomFamily는 단일 키만 제공하면, 각 기본 atom에 대한 고유한 키가 생성된다. atomFaily는 원시 타입, 배열,  객체, 원시 타입을 갖는 객체를 허용한다.
+
+```React
+const elementPositionStateFamily = atomFamily({
+  key: 'ElementPosition',
+  default: [0, 0],
+})
+
+function ElementListItem({ elementId }) {
+  const position = useRecoilValue(elementPositionStateFamily(elementId))
+  
+  return (
+  	<div>
+    	Element: { elementID }
+      Position { position }
+    </div>
+  )
+}
+```
+
+각 요소에 분리된 atom을 갖게하는 이 패턴을 사용하면 모두 자체 개별 구독을 유지한다는 장점을 얻을 수 있다. 한 요소의 값을 업데이트하면 해당 atom을 구독하는 컴포넌트만 업데이트 된다.
+
+
+
+### selectorFamily(options)
+
+- key: 유니크한 값,
+- get:  selector의 인터페이스와 동일
+- set?: selector 인터페이스와 동일
+
+
+
+selectorFmaily는 selector에 매개변수를 사용할 수 있게 한다.
+
+```react
+const counter = atom({
+  key: 'counter',
+  default: 1
+})
+
+const plusCounter = selectorFamaily({
+  key: 'plusCounter',
+  get: (count) => (get) => {
+    return get(counter) + count
+  }
+  set: (count) => ({ set }, newValue) => {
+  	set(counter, newValue + count)
+	}
+})
+
+function Counter() {
+  const count = useRecoilValue(counter)
+  
+  const plusCount = useRecoilValue(plusCounter(count))
+  
+  return <div>{plusCount}</div>
+}
+```
+
+selectorFamily는 쿼리에 매개변수를 전달하는데 더 유용하다
+
+```react
+const post = selectorFamily({
+  key: 'post',
+  get: (postId) => async ({ get }) => {
+    const { data: post } = await getPost(postId)
+    return post
+  }
+})
+
+function Post({ postId }) {
+  const post = useRecoilValue(post(postId))
+  
+  return <div>{post}</div>
+}
+```
+
+
+
+### waitForAll(dependencies)
+
+여러 비동기를 동시에 평가할 수 있는 helper다.
+
+Recoil state가 사용되는 모든 곳에서 사용할 수 있다.
+
+```react
+function FriendsInfo() {
+  const [friendA, friendB] = useRecoilValue(waitForAll([friendAState, friendBState]))
+  
+  return (
+    <div>
+    	Friend A Name: { friendA.name }
+      Friend B Name: { friendB.name }
+    </div>
+  )
+}
+
+const firendsInfoQuery = selector({
+  key: 'FriendsInfoQuery',
+  get: ({ get }) => {
+    const { friendList } = get(currentUserInfoQuery)
+    const friends = get(waitForAll(
+    	friendList.map(friendId => userInfoQuery(friendId))
+    ))
+    return friends
+  }
+})
+
+
+const customerInfoQuery = selectorFamily({
+  key: 'customerInfoQuery',
+  get: id => ({ get }) => {
+    const { info, invoices, payments } = get(waitForAll({
+      info: custormerInfoQuery(id),
+      invoices: invoicesQuery(id),
+      payments: paymentsQuery(id)
+    }))
+    
+    return {
+      name: info.name,
+      transactions: [
+        ...invoices,
+        ...payments
+      ]
+    }
+  }
+})
+```
+
+
+
+### waitForNone(dependencies)
+
+waitForNone은 waitForAll과 비슷하지만, 값을 직접 반환하는 대신 Loadable을 반환한다. 점진적 로딩을 할때 유용하다.
+
+
+
+```react
+function PostList({ postIds }) {
+  const posts = useReCoilValue(waitForNone(postIds.map(postId => asyncPost(postId))))
+  
+  return (
+  	<ul>
+    	{posts.map((loadablePost) => {
+        switch (loadablePost.state) {
+          case 'hasValue':
+            return <Post post={loadablePost.contents}/>
+          case 'hasError':
+          	return <Error>{loadablePost.contents}</Error>
+          case 'loading':
+          	return <Loading/>  
+        }
+      })}
+    </ul>
+  )
+}
+```
+
