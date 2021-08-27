@@ -496,3 +496,51 @@ function PostList({ postIds }) {
 }
 ```
 
+
+
+### useRecoilCallback(callback, deps)
+
+이 hook은 useCallback과 비슷하지만 Recoil상태에서 callback이 동작하도록 API를 제공한다.
+
+이 hook을 사용하는 이유
+
+- atom 혹은 selector가 업데이트 될 때 리렌더링하기 위해 컴포넌트를 구독하지 않고 비동기적으로 Recoil 상태를 읽기 위해
+- 렌더링 할 때에 수행하고 싶지 않은 비동기 동작에 대한 조회를 연기할 때
+- Recoil 상태를 읽거나 쓰려는 경우 부수효과를 실행
+
+---
+
+- callback: 콜백은 현재 Recoil 상태를 비동기로 업데이 하기위해 대기한다.
+- deps: 콜백을 메모하기 위한 선택적 의존성 모음
+
+콜백 인터페이스
+
+- snapshot: Recoil atom 상태의 읽을수 있게 해준다. atom값은 정적이지만 비동기 selector는 보류중이거나 resolve 될 수 있다.
+- gotoSnapshot: 전역 상태를 제공된 Snapshot에 일치하도록 업데이트한다.
+- set: atom 혹은 selector의 값을 설정한다.
+- reset: atom 혹은 selector를 기본값으로 초기화한다.
+
+
+
+상태 지연하여 읽기
+
+```react
+const itemsInCart = atom({
+  key: 'itemsInCart',
+  default: 0
+})
+
+function CartInfoDebug() {
+  const logCartItems = useRecoilCallback(({ snapshot}) => async () => {
+    const numItemInCart = await snapshot.getPromise(itemsInCart)
+    console.log('Items in Cart: ', numItemInCart)
+  })
+  
+  return (
+  	<div>
+    	<button onClick={logCartItems}>Log Cart Items</button>
+    </div>
+  )
+}
+```
+
